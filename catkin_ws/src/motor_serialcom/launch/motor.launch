@@ -1,0 +1,6 @@
+<launch>
+	<node pkg="motor_serialcom" name="serial" type="motor_serialcom" output="screen"/>
+	<node pkg="motor_serialcom" name="action" type="action" output="screen"/>
+	
+
+</launch>

@@ -1,0 +1,9 @@
+-I/usr/include/opencv
+-I/usr/include
+-I/usr/include/vtk-5.8
+-DPCL_OMP
+-DQT_NO_KEYWORDS
+-DOCTOMAP_PRE_18
+-o
+/home/robot/ros/rtabmap/guilib/src/__/include/rtabmap/utilite/moc_UPlot.cxx
+/home/robot/ros/rtabmap/guilib/include/rtabmap/utilite/UPlot.h

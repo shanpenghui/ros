@@ -1,0 +1,6 @@
+<launch>
+	<node pkg="motor_serialcom_wzc" name="serial" type="motor_serialcom" output="screen"/>
+	<node pkg="motor_serialcom_wzc" name="action" type="action" output="screen"/>
+	
+
+</launch>
