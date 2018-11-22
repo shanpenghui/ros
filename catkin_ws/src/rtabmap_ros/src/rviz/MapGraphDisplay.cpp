@@ -51,21 +51,21 @@ namespace rtabmap_ros
 
 MapGraphDisplay::MapGraphDisplay()
 {
-	color_neighbor_property_ = new rviz::ColorProperty( "Neighbor", Qt::blue,
-	                                       "Color to draw neighbor links.", this );
-	color_neighbor_merged_property_ = new rviz::ColorProperty( "Merged neighbor", QColor(255,170,0),
-	                                       "Color to draw merged neighbor links.", this );
-	color_global_property_ = new rviz::ColorProperty( "Global loop closure", Qt::red,
-	                                       "Color to draw global loop closure links.", this );
-	color_local_property_ = new rviz::ColorProperty( "Local loop closure", Qt::yellow,
-	                                       "Color to draw local loop closure links.", this );
-	color_user_property_ = new rviz::ColorProperty( "User", Qt::red,
-	                                       "Color to draw user links.", this );
-	color_virtual_property_ = new rviz::ColorProperty( "Virtual", Qt::magenta,
-	                                       "Color to draw virtual links.", this );
+	color_neighbor_property_ = new rviz::ColorProperty("Neighbor", Qt::blue,
+													   "Color to draw neighbor links.", this);
+	color_neighbor_merged_property_ = new rviz::ColorProperty("Merged neighbor", QColor(255, 170, 0),
+															  "Color to draw merged neighbor links.", this);
+	color_global_property_ = new rviz::ColorProperty("Global loop closure", Qt::red,
+													 "Color to draw global loop closure links.", this);
+	color_local_property_ = new rviz::ColorProperty("Local loop closure", Qt::yellow,
+													"Color to draw local loop closure links.", this);
+	color_user_property_ = new rviz::ColorProperty("User", Qt::red,
+												   "Color to draw user links.", this);
+	color_virtual_property_ = new rviz::ColorProperty("Virtual", Qt::magenta,
+													  "Color to draw virtual links.", this);
 
-	alpha_property_ = new rviz::FloatProperty( "Alpha", 1.0,
-                                       "Amount of transparency to apply to the path.", this );
+	alpha_property_ = new rviz::FloatProperty("Alpha", 1.0,
+											  "Amount of transparency to apply to the path.", this);
 }
 
 MapGraphDisplay::~MapGraphDisplay()
@@ -75,29 +75,29 @@ MapGraphDisplay::~MapGraphDisplay()
 
 void MapGraphDisplay::onInitialize()
 {
-  MFDClass::onInitialize();
-  destroyObjects();
+	MFDClass::onInitialize();
+	destroyObjects();
 }
 
 void MapGraphDisplay::reset()
 {
-  MFDClass::reset();
-  destroyObjects();
+	MFDClass::reset();
+	destroyObjects();
 }
 
 void MapGraphDisplay::destroyObjects()
 {
-	for(unsigned int i=0; i<manual_objects_.size(); ++i)
+	for (unsigned int i = 0; i < manual_objects_.size(); ++i)
 	{
 		manual_objects_[i]->clear();
-		scene_manager_->destroyManualObject( manual_objects_[i] );
+		scene_manager_->destroyManualObject(manual_objects_[i]);
 	}
 	manual_objects_.clear();
 }
 
-void MapGraphDisplay::processMessage( const rtabmap_ros::MapGraph::ConstPtr& msg )
+void MapGraphDisplay::processMessage(const rtabmap_ros::MapGraph::ConstPtr &msg)
 {
-	if(!(msg->poses.size() == msg->posesId.size()))
+	if (!(msg->poses.size() == msg->posesId.size()))
 	{
 		ROS_ERROR("rtabmap_ros::MapGraph: Error pose ids and poses must have all the same size.");
 		return;
@@ -113,47 +113,47 @@ void MapGraphDisplay::processMessage( const rtabmap_ros::MapGraph::ConstPtr& msg
 
 	Ogre::Vector3 position;
 	Ogre::Quaternion orientation;
-	if( !context_->getFrameManager()->getTransform( msg->header, position, orientation ))
+	if (!context_->getFrameManager()->getTransform(msg->header, position, orientation))
 	{
-		ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'", msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
+		ROS_DEBUG("Error transforming from frame '%s' to frame '%s'", msg->header.frame_id.c_str(), qPrintable(fixed_frame_));
 	}
 
-	Ogre::Matrix4 transform( orientation );
-	transform.setTrans( position );
+	Ogre::Matrix4 transform(orientation);
+	transform.setTrans(position);
 
-	if(links.size())
+	if (links.size())
 	{
 		Ogre::ColourValue color;
-		Ogre::ManualObject* manual_object = scene_manager_->createManualObject();
-		manual_object->setDynamic( true );
-		scene_node_->attachObject( manual_object );
+		Ogre::ManualObject *manual_object = scene_manager_->createManualObject();
+		manual_object->setDynamic(true);
+		scene_node_->attachObject(manual_object);
 		manual_objects_.push_back(manual_object);
 
 		manual_object->estimateVertexCount(links.size() * 2);
-		manual_object->begin( "BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST );
-		for(std::map<int, rtabmap::Link>::iterator iter=links.begin(); iter!=links.end(); ++iter)
+		manual_object->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		for (std::map<int, rtabmap::Link>::iterator iter = links.begin(); iter != links.end(); ++iter)
 		{
 			std::map<int, rtabmap::Transform>::iterator poseIterFrom = poses.find(iter->second.from());
 			std::map<int, rtabmap::Transform>::iterator poseIterTo = poses.find(iter->second.to());
-			if(poseIterFrom != poses.end() && poseIterTo != poses.end())
+			if (poseIterFrom != poses.end() && poseIterTo != poses.end())
 			{
-				if(iter->second.type() == rtabmap::Link::kNeighbor)
+				if (iter->second.type() == rtabmap::Link::kNeighbor)
 				{
 					color = color_neighbor_property_->getOgreColor();
 				}
-				else if(iter->second.type() == rtabmap::Link::kNeighborMerged)
+				else if (iter->second.type() == rtabmap::Link::kNeighborMerged)
 				{
 					color = color_neighbor_merged_property_->getOgreColor();
 				}
-				else if(iter->second.type() == rtabmap::Link::kVirtualClosure)
+				else if (iter->second.type() == rtabmap::Link::kVirtualClosure)
 				{
 					color = color_virtual_property_->getOgreColor();
 				}
-				else if(iter->second.type() == rtabmap::Link::kUserClosure)
+				else if (iter->second.type() == rtabmap::Link::kUserClosure)
 				{
 					color = color_user_property_->getOgreColor();
 				}
-				else if(iter->second.type() == rtabmap::Link::kLocalSpaceClosure || iter->second.type() == rtabmap::Link::kLocalTimeClosure)
+				else if (iter->second.type() == rtabmap::Link::kLocalSpaceClosure || iter->second.type() == rtabmap::Link::kLocalTimeClosure)
 				{
 					color = color_local_property_->getOgreColor();
 				}
@@ -163,12 +163,12 @@ void MapGraphDisplay::processMessage( const rtabmap_ros::MapGraph::ConstPtr& msg
 				}
 				color.a = alpha_property_->getFloat();
 				Ogre::Vector3 pos;
-				pos = transform * Ogre::Vector3( poseIterFrom->second.x(), poseIterFrom->second.y(), poseIterFrom->second.z() );
-				manual_object->position( pos.x, pos.y, pos.z );
-				manual_object->colour( color );
-				pos = transform * Ogre::Vector3( poseIterTo->second.x(), poseIterTo->second.y(), poseIterTo->second.z() );
-				manual_object->position( pos.x, pos.y, pos.z );
-				manual_object->colour( color );
+				pos = transform * Ogre::Vector3(poseIterFrom->second.x(), poseIterFrom->second.y(), poseIterFrom->second.z());
+				manual_object->position(pos.x, pos.y, pos.z);
+				manual_object->colour(color);
+				pos = transform * Ogre::Vector3(poseIterTo->second.x(), poseIterTo->second.y(), poseIterTo->second.z());
+				manual_object->position(pos.x, pos.y, pos.z);
+				manual_object->colour(color);
 			}
 		}
 
@@ -179,4 +179,4 @@ void MapGraphDisplay::processMessage( const rtabmap_ros::MapGraph::ConstPtr& msg
 } // namespace rtabmap_ros
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rtabmap_ros::MapGraphDisplay, rviz::Display )
+PLUGINLIB_EXPORT_CLASS(rtabmap_ros::MapGraphDisplay, rviz::Display)

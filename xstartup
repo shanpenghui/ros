@@ -11,6 +11,9 @@ vncconfig -iconic &
 x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
 x-window-manager &
 
+# export STARTUP="/usr/bin/gnome-session --session=ubuntu-2d"
+# $STARTUP
+
 gnome-panel &
 gnome-settings-daemon &
 metacity &
